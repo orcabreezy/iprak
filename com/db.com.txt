@@ -1,0 +1,16 @@
+$ORIGIN com.
+$TTL 1d
+                          
+@ IN SOA ns hostmaster.com (
+  1  ; SERIAL (update count)
+  8h ; REFRESH
+  2h ; RETRY
+  1w ; EXPIRE
+  1d ; TTL for negative caching
+  )
+
+@     IN  NS    ns
+                 
+com	IN  AAAA  fd42::2:0:1
+lab3  	IN  AAAA  fd42::2:1:1
+linux2 	IN  AAAA  fd42::2:2:1

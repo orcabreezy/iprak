@@ -1,0 +1,4 @@
+zone "lab3" IN {
+	type master;
+	file "/etc/bind/lab/db.lab3.com";
+};

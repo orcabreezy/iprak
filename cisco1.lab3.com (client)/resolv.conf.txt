@@ -1,0 +1,1 @@
+nameserver fd42::2:1:1

@@ -1,0 +1,4 @@
+zone "net" IN {
+	type master;
+	file "/etc/bind/lab/db.net";
+};

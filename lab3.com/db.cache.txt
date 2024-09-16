@@ -1,0 +1,9 @@
+; our first root server
+.                    3600000  IN  NS    A.ROOT-SERVERS.EDU.
+A.ROOT-SERVERS.EDU.  3600000  IN  AAAA  fd42::1:0:1
+; our second root server               
+.                    3600000  IN  NS    B.ROOT-SERVERS.EDU.
+B.ROOT-SERVERS.EDU.  3600000  IN  AAAA  fd42::1:0:2
+
+; add timer??
+morpheus.lab3.com.	      IN A 	134.2.10.234

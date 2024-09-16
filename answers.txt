@@ -1,0 +1,96 @@
+# 1.1
+
+- Verisign  (198.41.0.4)
+- Netnod    (192.36.148.17)     
+- RIPE NCC  (193.0.14.129)
+
+Source: https://en.wikipedia.org/wiki/Root_name_server
+
+
+# 1.2 
+
+My PC _could_ be manually configured with the respective IP-addresses of 
+one or more root-name-servers but in reality this is not necessary, because
+my PC can contact a local DNS server to act as a recursive resolver for 
+my DNS queries. It's IP-address can also be manually configured if desired, 
+but is often automatically configured through a DHCP network parameter field
+from the DHCP server on PC-startup
+
+# 2.1.1
+
+- "." Doman this server is for (root)
+- "IN" internet class
+- "SOA" SOA RR type 
+- "A.ROOT-SERVERS.EDU." DNS-Server name for this zone
+- "root.ROOT-SERVERS.EDU." Email of this domains admin
+- Parameters:
+    1: "SERIAL-field" the 'version' count for this record (to let other servers know when to update their information)
+    8h: "REFRESH" field, sets the time when secondary NS's should look for change of SERIAL and update information accordingly, to 8hrs
+    2h: "RETRY" field, sets RETRY time to 2hrs to retry after REFRESH if REFRESH faild (for secondary NS's)
+    1w: "EXPIRE" field, sets Expiration time for secondary NS's to not answer queries anymore if the laste successful refresh was 1 week ago
+    1d: "MINIMUM" sets the minimum ttl field for negative caching to 1d (same as TTL so 1d will be the TTL for both caching)
+
+other entries: 
+- "NS" a NS type record to get the domain-name "A.ROOT-SERVERS.EDU" or "B.ROOT-SERVERS.EDU" if queried. 
+- "ns.com." the name server's name for ".com"
+- "ns.net." the name server's name for ".net"
+- "AAAA": specifies these are quadrouple-A ressource-records to get the according IP-address for a domain name or part of a domain name
+
+
+# 2.1.2
+
+simple copy-paste
+
+# 2.3.1
+
+Without caching, Server3 contacts its DNS-resolver, which is Client3, with an iterative Query for an AAAA RR for lab3.net. 
+Client3 then iteratively resolves the name. First it contacts the root server "." which is Client1 (first root server listed).
+Client1 answers with the address of Server1, who is the TLD Server for .net. Then Client3 contacts Server1 for further resolution
+of the name and finally gets Router2's address, which it has in its db-file. Then Client3 returns the resolved address as a complete
+A-RR to Server3. 
+
+# 2.3.2
+
+$ host
+-v/ -d : verbose output
+-l : list option
+-l + -a: alll records will be printed
+
+# 2.3.3
+
+probably only Server A because of its higher position in the cache
+
+# 3.1.1
+
+There is no obvious difference because either the address has been cached on Server3 or, if caching has been bypassed, 
+the Root B acts as a back up Server and is contacted if Root A does not answer
+
+# 3.1.2
+
+Probably due to cachint the host names can still be resolved
+
+# 3.1.3
+
+A possible disadvantage of the hierarchical DNS architecture is the high dependence on the root and top levels. Since
+every DNS resolution has to pass through these layers they create a vulnerable failure point and thus have to be built
+very robust and failure safe. Also, out of 14 root-servers 12 are located in the USA and thus also create a strong
+political dependency on the USA for Internet traffic. 
+
+To resolve the second issue, more root-servers should be located and managed by organizations outside the USA's control.
+
+# 3.2.1
+
+//probably different servers answering
+
+# 3.2.2
+
+//probably a germany-/europe-hosted server, caching regionally
+
+advantages: faster communication with the desired server, regional caching
+
+# 3.2.3
+
+# 3.2.4
+
+# 
+

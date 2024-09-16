@@ -1,0 +1,34 @@
+// primeing ?
+zone "." {
+    type hint;
+    file "/etc/vind/lab/db.root";
+};
+
+// not 100% sure about this
+//	zone ".com" {
+//		type hint;
+//		file "/etc/bind/lab/db.cache";
+//	};
+
+// authorative for localhost, forward reverse and broadcast
+
+zone "localhost" {
+    type master;
+    file "/etc/bind/db.local";
+};
+
+zone "127.in-addr.arpa" {
+    type master; 
+    file "/etc/bind/db.127";
+};
+
+zone "0.in-addr.arpa" {
+    type master;
+    file "/etc/bind/db.0";
+};
+
+zone "255.in-addr.arpa" {
+    type master;
+    file "/etc/bind/db.255";
+};
+
