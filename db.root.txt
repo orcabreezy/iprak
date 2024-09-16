@@ -1,0 +1,21 @@
+$ORIGIN . 
+$TTL 1d
+
+. IN SOA A.ROOT-SERVERS.EDU. root.ROOT-SERVERS.EDU. (
+    1  ; SERIAL (update count)
+    8h ; REFRESH
+    2h ; RETRY
+    1w ; EXPIRE
+    1d ; TTL for negative caching
+    )
+
+.                   IN NS A.ROOT-SERVERS.EDU
+.                   IN NS B.ROOT-SERVERS.EDU
+com                 IN NS ns.com.
+net                 IN NS ns.net.
+
+A.ROOT-SERVERS.EDU. IN AAAA fd42::1:0:1
+B.ROOT-SERVERS.EDU. IN AAAA fd42::1:0:2
+ns.com.             IN AAAA fd42::2:0:1
+ns.net.             IN AAAA fd42::3:0:1
+
