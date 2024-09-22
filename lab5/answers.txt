@@ -1,0 +1,129 @@
+
+-- list offloading: "sudo ethtool -k eth?"
+-- disable offloading: "sudo ethtool -K eth? [OPTION] off ...."
+# 2.1
+command: "ping6 -c 3 -s 1300 fd02::1"
+
+ping is handled via ICMP echo and ICMP echo-reply messages. The -c option specifies the number of individual
+ping messages and the -s option specifies the payload size in bytes (+ 8 bytes of header information).
+
+# 2.2 
+
+On layer3 we have to consider the size of the ICMP header + IP Header which add up to 8 + 20 = 28 bytes (without ip-options)
+Therefore on layer3 we are transmitting a total of 1328 bytes. 
+On layer2, also the Ethernet frame header and trailer contain information, so we have to add another 14 + 4 = 18 bytes for them. Therefor we are transmitting 1346 bytes in total over the ethernet connection.
+
+The headers (and trailer) contain information which cant be used for regular data exchange and is only used to get the 
+packet/ frame to the correct destination. So when calculating the "true" data ammount which is sent over the cable, we have
+to add their respective sizes.
+
+-- allow fragmentation (ping6 -c3 -s 1300 -M dont fd02::1) 
+
+# 2.3 
+
+...
+The packets were fragmented on Server1, because when trying to send from Server1 to Server2 the Server realizese the MTU of
+1280 bytes is less than the packet (1328 bytes with IP and ICMP headers) and thus has to fragment the packets to be able to
+send them over to Server2. i
+
+-- disable fragmentation (ping6 -c1 -s 1300 -m do fd02::1)
+
+# 2.4
+
+GUESS: 
+	Server1 would have to fragment the packet, but this is not possible due to the DF-bit set to 1. So Server1 has to di	scard the packet and send an ICMP notification to the sender (Client1) (type3 destination unreachable, code4 fragment		tation needed, but df-bit set)
+-----------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
+
+# 3.1
+
+...
+The TCP-connection-teardown is initiated by the Client-actor via a FIN segment. The Server-side then answswers with an 
+ACK to the FIN and follows up with a separate FIN Segment. When the client recieves the Server's FIN, it also 
+acknowledges and goes into a timed-wait state. When the Server receives the ACK to its own FIN-Segment, the Server goes
+into the closed state, but the client waits about 30s in its timed-wait state to ensure the last ACK was not lost.
+
+# 3.2
+
+Updon connection setup via the three-way handshake, the servers answer to SYN is a SYNACK package in which the SYN and the 
+ACK flag is set, instead of being two separately sent segments.
+
+	GUESS:	
+(also notably in the first ACK from Client to Server (Client1 to Client2) data is already transported witht the SYN segment)
+
+ 
+-----------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
+
+-- use UDP: "nc -u -k6l [Port No]
+-- use UDP: "dd if=/dev/zero bs=1 count=3200 | nc -u fd02::1 [Port No]
+# 4.1
+
+When using UDP, there is no extra connection setup or teardown, since UDP is a connectionless transport protocol
+in oppose to TCP. So the Data is sent right away via the first segment. 
+Also, since UDP does not provide a reliable connection, segments can be lost without any notification mechanism.
+
+# 4.2 
+
+When voice streaming, individual packet losses are completely tolerable, since the main goal is to understand each other
+and not to acheive highest fidelity sound. So as long as this is guaranteed, VoIP can benefit from the simpler UDP protocol
+without connection setup/ teardown,  its higher efficiency(smaller header) and lower latency. Especially since voice 
+streaming can be bandwidth heavy already. 
+
+# 4.3
+
+No, Telnet should not be used with UDP, because we need a reliable connection when connecting to a remote host. 
+Unnoticed packet-loss would be frustrating (retypeing characters ...) and we also do not need to save up on bandwidth, 
+because the information exchanged should be limited to just text. Telnet also is not very delay sensetive as for example
+online gaming would be (at least not down to the last few ms's)
+
+-----------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
+
+# 6?.1
+//flags ACK, PSH (maybe URG)
+
+ACK, because Telnet is interactive, each part of the connection sends and receives Data and can therefore piggibyck ACK's
+PSH, becuase Telnet wants to acheive real-time feedback, the data is passed right to the application when received. 
+
+# 6.2 
+
+//expecting piggibacked ack's, identify at byte-number
+
+-----------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
+
+probably to differentiate between ingress and egress traffic, we have to redirect ingeress traffic to an ifb:
+	"sudo modprobe ifb"
+	"sudo ip l set dev ifb up"
+	"sudo tc qdisc add dev eth0 handle ffff: ingress"
+	"sudo tc filter add dev eth0 parent ffff: protocol ip u 32 0 0 action mirred egress redirect dev ibf0"
+	"sudo tc qdisc add dev ifb0 root tbf rate <rate> burst <buffer> latency <latency>
+
+apply TBF: (burst == buffer)
+	sudo tc qdisc add dev <if> root tbf rate <rate> burst <burst> latency <latency>
+check TBF:
+	tc qdisc show dev <if>
+# 8.1
+
+# 8.2 
+
+-- ping flood: "ping -f -c 100 <target_ip>
+
+-- monitor traffic: "sudo iftop -i eth0" or just "iptraf-ng" gui
+
+
+# 8.3 
+	google!
+
+
+-----------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
+
+# 9.1
+
+by disableing metrics saving (setting no_metrics_save to 1) we do not consider connection attributes like RTT or bandwidth
+from previous TCP connections. Therefore TCP can start "fresh" and avoid relying on possibly outdated data.
+
+bictcp_init enables initialization of private variables like ssthresh from previous sessions. Proper setting can increase 
+start-up behaivour significantly
